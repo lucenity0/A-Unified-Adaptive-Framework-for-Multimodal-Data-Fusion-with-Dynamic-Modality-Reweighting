@@ -1,0 +1,13 @@
+ABLATION STUDY RESULTS — Phase 1: Static Reweighting
+========================================================================
+Model                                             AUROC     Acc      F1   ΔAUROC
+------------------------------------------------------------------------
+1. Text Only                                     0.6314  0.5740  0.5573  +0.0000
+2. Image Only                                    0.6326  0.5780  0.5720  +0.0012
+3. Concat Fusion (no attention, no reweighting)  0.6890  0.6080  0.5966  +0.0576
+4. Cross-Attn (no reweighting)                   0.7054  0.6060  0.5943  +0.0740
+5. Cross-Attn + Static Reweighting (Phase 1)     0.7131  0.6260  0.6143  +0.0817
+========================================================================
+
+Gain from static reweighting : +0.0076
+Phase 2 (dynamic) to be run separately.
