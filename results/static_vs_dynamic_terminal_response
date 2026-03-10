@@ -1,0 +1,77 @@
+source "/Users/nafeess/Documents/Hateful memes static copy/venv/bin/activate"
+nafeess@Nafeess-MacBook-Pro Hateful memes static copy % source "/Users/nafeess/Documents/Hateful memes static copy/ven
+v/bin/activate"
+(venv) nafeess@Nafeess-MacBook-Pro Hateful memes static copy % python3 run_ablation_static_dynamic_comp.py
+(venv) nafeess@Nafeess-MacBook-Pro Hateful memes static copy %  source "/Users/nafeess/Documents/Hateful memes static 
+copy/venv/bin/activate"
+(venv) nafeess@Nafeess-MacBook-Pro Hateful memes static copy % python3 run_ablation_static_dynamic_comp.py
+/Library/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/nafeess/Documents/Hateful memes static copy/run_ablation_static_dynamic_comp.py': [Errno 2] No such file or directory
+(venv) nafeess@Nafeess-MacBook-Pro Hateful memes static copy % cd src
+(venv) nafeess@Nafeess-MacBook-Pro src % python3 run_ablation_static_dynamic_comp.py
+Using device: mps
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+The image processor of type `CLIPImageProcessor` is now loaded as a fast processor by default, even if the model checkpoint was saved with a slow processor. This is a breaking change and may produce slightly different outputs. To continue using the slow processor, instantiate this class with `use_fast=False`. 
+Loaded 8500 samples from ../Data/train-00000-of-00001-6587b3a58d350036.parquet
+Columns: ['image', 'id', 'img', 'label', 'text']
+Loaded 500 samples from ../Data/validation-00000-of-00001-1508d9e5032c2c1f.parquet
+Columns: ['image', 'id', 'img', 'label', 'text']
+Loading weights: 100%|███████████████████████████████████████████████████████████| 398/398 [00:00<00:00, 41290.48it/s]
+CLIPModel LOAD REPORT from: openai/clip-vit-base-patch32
+Key                                  | Status     |  | 
+-------------------------------------+------------+--+-
+vision_model.embeddings.position_ids | UNEXPECTED |  | 
+text_model.embeddings.position_ids   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED    :can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+=======================================================
+  Training: Cross-Attn + Static Reweighting (Phase 1)
+=======================================================
+  Epoch 1/10 → AUROC: 0.6561 | Acc: 0.5920 | F1: 0.5764
+  Epoch 2/10 → AUROC: 0.6630 | Acc: 0.5980 | F1: 0.5772
+  Epoch 3/10 → AUROC: 0.6920 | Acc: 0.6480 | F1: 0.6476
+  Epoch 4/10 → AUROC: 0.6952 | Acc: 0.6260 | F1: 0.6183
+  Epoch 5/10 → AUROC: 0.7225 | Acc: 0.6460 | F1: 0.6387
+  Epoch 6/10 → AUROC: 0.7108 | Acc: 0.6100 | F1: 0.5874
+  Epoch 7/10 → AUROC: 0.7192 | Acc: 0.6180 | F1: 0.5889
+  Epoch 8/10 → AUROC: 0.7193 | Acc: 0.6220 | F1: 0.6078
+  Epoch 9/10 → AUROC: 0.7152 | Acc: 0.6220 | F1: 0.6066
+  Epoch 10/10 → AUROC: 0.7139 | Acc: 0.6100 | F1: 0.5890
+Loading weights: 100%|███████████████████████████████████████████████████████████| 398/398 [00:00<00:00, 36453.89it/s]
+CLIPModel LOAD REPORT from: openai/clip-vit-base-patch32
+Key                                  | Status     |  | 
+-------------------------------------+------------+--+-
+vision_model.embeddings.position_ids | UNEXPECTED |  | 
+text_model.embeddings.position_ids   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED    :can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+=======================================================
+  Training: Cross-Attn + Dynamic Reweighting (Phase 2)
+=======================================================
+  Epoch 1/10 → AUROC: 0.6504 | Acc: 0.5620 | F1: 0.5141
+  Epoch 2/10 → AUROC: 0.6649 | Acc: 0.6060 | F1: 0.6012
+  Epoch 3/10 → AUROC: 0.6961 | Acc: 0.6120 | F1: 0.5984
+  Epoch 4/10 → AUROC: 0.7182 | Acc: 0.6600 | F1: 0.6595
+  Epoch 5/10 → AUROC: 0.7071 | Acc: 0.6560 | F1: 0.6479
+  Epoch 6/10 → AUROC: 0.7266 | Acc: 0.6380 | F1: 0.6220
+  Epoch 7/10 → AUROC: 0.7117 | Acc: 0.6360 | F1: 0.6168
+  Epoch 8/10 → AUROC: 0.7177 | Acc: 0.6440 | F1: 0.6304
+  Epoch 9/10 → AUROC: 0.7073 | Acc: 0.6240 | F1: 0.6077
+  Epoch 10/10 → AUROC: 0.7142 | Acc: 0.6240 | F1: 0.6077
+
+
+====================================================================
+             STATIC vs DYNAMIC REWEIGHTING -- ABLATION              
+====================================================================
+Model                                          AUROC     Acc      F1
+--------------------------------------------------------------------
+Cross-Attn + Static Reweighting (Phase 1)     0.7225  0.6460  0.6387
+Cross-Attn + Dynamic Reweighting (Phase 2)    0.7266  0.6380  0.6220
+--------------------------------------------------------------------
+Gain from Dynamic over Static                +0.0042
+====================================================================
+
+Saved → ../results/ablation_static_vs_dynamic.txt
