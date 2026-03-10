@@ -1,0 +1,241 @@
+===================================================
+EPOCH 1/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.7692
+  Batch 100/532 | Loss: 0.7893
+  Batch 150/532 | Loss: 0.7863
+  Batch 200/532 | Loss: 0.7580
+  Batch 250/532 | Loss: 0.7988
+  Batch 300/532 | Loss: 0.5374
+  Batch 350/532 | Loss: 0.7088
+  Batch 400/532 | Loss: 0.5926
+  Batch 450/532 | Loss: 0.6765
+  Batch 500/532 | Loss: 0.6158
+
+Train --> Loss: 0.7403 | AUROC: 0.6875
+Val   --> Loss: 0.9744 | AUROC: 0.6555 | Acc: 0.6000 | F1: 0.5840
+Alpha --> Mean: 0.501 | Std: 0.001 | Min: 0.500 | Max: 0.502
+Saved best model --> best_model_dynamic.pt | AUROC: 0.6555
+
+====================================================
+EPOCH 2/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.6958
+  Batch 100/532 | Loss: 0.7587
+  Batch 150/532 | Loss: 0.7948
+  Batch 200/532 | Loss: 0.6255
+  Batch 250/532 | Loss: 0.6089
+  Batch 300/532 | Loss: 0.4330
+  Batch 350/532 | Loss: 0.6032
+  Batch 400/532 | Loss: 0.6384
+  Batch 450/532 | Loss: 0.6141
+  Batch 500/532 | Loss: 0.6580
+
+Train --> Loss: 0.6483 | AUROC: 0.7886
+Val   --> Loss: 0.9454 | AUROC: 0.6685 | Acc: 0.6080 | F1: 0.5966
+Alpha --> Mean: 0.501 | Std: 0.000 | Min: 0.499 | Max: 0.501
+Saved best model --> best_model_dynamic.pt | AUROC: 0.6685
+
+====================================================
+EPOCH 3/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.7232
+  Batch 100/532 | Loss: 0.6718
+  Batch 150/532 | Loss: 0.3347
+  Batch 200/532 | Loss: 0.5663
+  Batch 250/532 | Loss: 0.5158
+  Batch 300/532 | Loss: 0.5655
+  Batch 350/532 | Loss: 1.0937
+  Batch 400/532 | Loss: 0.7130
+  Batch 450/532 | Loss: 0.6749
+  Batch 500/532 | Loss: 0.4106
+
+Train --> Loss: 0.6003 | AUROC: 0.8242
+Val   --> Loss: 0.9492 | AUROC: 0.6825 | Acc: 0.6320 | F1: 0.6246
+Alpha --> Mean: 0.501 | Std: 0.001 | Min: 0.500 | Max: 0.504
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+Saved best model --> best_model_dynamic.pt | AUROC: 0.6825
+
+====================================================
+EPOCH 4/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.3429
+  Batch 100/532 | Loss: 0.6369
+  Batch 150/532 | Loss: 0.3963
+  Batch 200/532 | Loss: 0.3991
+  Batch 250/532 | Loss: 0.3351
+  Batch 300/532 | Loss: 0.6831
+  Batch 350/532 | Loss: 0.6983
+  Batch 400/532 | Loss: 0.5040
+  Batch 450/532 | Loss: 0.6523
+  Batch 500/532 | Loss: 0.4896
+
+Train --> Loss: 0.5407 | AUROC: 0.8604
+Val   --> Loss: 0.9199 | AUROC: 0.6775 | Acc: 0.6340 | F1: 0.6307
+Alpha --> Mean: 0.502 | Std: 0.001 | Min: 0.501 | Max: 0.505
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+No improvement. Patience: 1/5
+
+====================================================
+EPOCH 5/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.5203
+  Batch 100/532 | Loss: 0.6702
+  Batch 150/532 | Loss: 0.4818
+  Batch 200/532 | Loss: 1.0942
+  Batch 250/532 | Loss: 0.4676
+  Batch 300/532 | Loss: 0.5176
+  Batch 350/532 | Loss: 0.5222
+  Batch 400/532 | Loss: 0.5359
+  Batch 450/532 | Loss: 0.4690
+  Batch 500/532 | Loss: 0.3760
+
+Train --> Loss: 0.4662 | AUROC: 0.8991
+Val   --> Loss: 1.0860 | AUROC: 0.7225 | Acc: 0.6200 | F1: 0.6035
+Alpha --> Mean: 0.504 | Std: 0.001 | Min: 0.501 | Max: 0.507
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+Saved best model --> best_model_dynamic.pt | AUROC: 0.7225
+
+====================================================
+EPOCH 6/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.2782
+  Batch 100/532 | Loss: 0.0950
+  Batch 150/532 | Loss: 0.3428
+  Batch 200/532 | Loss: 0.2367
+  Batch 250/532 | Loss: 0.7899
+  Batch 300/532 | Loss: 0.1474
+  Batch 350/532 | Loss: 0.4600
+  Batch 400/532 | Loss: 0.3433
+  Batch 450/532 | Loss: 0.4103
+  Batch 500/532 | Loss: 0.2990
+
+Train --> Loss: 0.3621 | AUROC: 0.9403
+Val   --> Loss: 1.2071 | AUROC: 0.7250 | Acc: 0.6320 | F1: 0.6191
+Alpha --> Mean: 0.511 | Std: 0.004 | Min: 0.501 | Max: 0.524
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+Saved best model --> best_model_dynamic.pt | AUROC: 0.7250
+
+====================================================
+EPOCH 7/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.2534
+  Batch 100/532 | Loss: 0.1873
+  Batch 150/532 | Loss: 0.2453
+  Batch 200/532 | Loss: 0.3507
+  Batch 250/532 | Loss: 0.0565
+  Batch 300/532 | Loss: 0.2453
+  Batch 350/532 | Loss: 0.3112
+  Batch 400/532 | Loss: 0.2015
+  Batch 450/532 | Loss: 0.2329
+  Batch 500/532 | Loss: 0.6192
+
+Train --> Loss: 0.2624 | AUROC: 0.9688
+Val   --> Loss: 1.3868 | AUROC: 0.7423 | Acc: 0.6580 | F1: 0.6506
+Alpha --> Mean: 0.531 | Std: 0.015 | Min: 0.500 | Max: 0.572
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+Saved best model --> best_model_dynamic.pt | AUROC: 0.7423
+
+====================================================
+EPOCH 8/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.0101
+  Batch 100/532 | Loss: 0.0359
+  Batch 150/532 | Loss: 0.5051
+  Batch 200/532 | Loss: 0.2041
+  Batch 250/532 | Loss: 0.2562
+  Batch 300/532 | Loss: 0.0622
+  Batch 350/532 | Loss: 0.0108
+  Batch 400/532 | Loss: 0.0064
+  Batch 450/532 | Loss: 0.4016
+  Batch 500/532 | Loss: 0.0215
+
+Train --> Loss: 0.1784 | AUROC: 0.9855
+Val   --> Loss: 2.2015 | AUROC: 0.7079 | Acc: 0.6300 | F1: 0.6149
+Alpha --> Mean: 0.550 | Std: 0.027 | Min: 0.497 | Max: 0.624
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+No improvement. Patience: 1/5
+
+====================================================
+EPOCH 9/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.0217
+  Batch 100/532 | Loss: 0.0007
+  Batch 150/532 | Loss: -0.0049
+  Batch 200/532 | Loss: 0.4997
+  Batch 250/532 | Loss: 0.4947
+  Batch 300/532 | Loss: -0.0011
+  Batch 350/532 | Loss: 0.2763
+  Batch 400/532 | Loss: 0.4223
+  Batch 450/532 | Loss: 0.2909
+  Batch 500/532 | Loss: 0.0280
+
+Train --> Loss: 0.1365 | AUROC: 0.9923
+Val   --> Loss: 2.6276 | AUROC: 0.7312 | Acc: 0.6260 | F1: 0.6043
+Alpha --> Mean: 0.545 | Std: 0.032 | Min: 0.496 | Max: 0.624
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+No improvement. Patience: 2/5
+
+====================================================
+EPOCH 10/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.0711
+  Batch 100/532 | Loss: 0.6678
+  Batch 150/532 | Loss: 0.1026
+  Batch 200/532 | Loss: -0.0030
+  Batch 250/532 | Loss: 0.0099
+  Batch 300/532 | Loss: 0.2493
+  Batch 350/532 | Loss: 0.1041
+  Batch 400/532 | Loss: -0.0034
+  Batch 450/532 | Loss: -0.0005
+  Batch 500/532 | Loss: 0.0486
+
+Train --> Loss: 0.0735 | AUROC: 0.9973
+Val   --> Loss: 3.7794 | AUROC: 0.7147 | Acc: 0.6360 | F1: 0.6189
+Alpha --> Mean: 0.538 | Std: 0.035 | Min: 0.486 | Max: 0.617
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+No improvement. Patience: 3/5
+
+====================================================
+EPOCH 11/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.0091
+  Batch 100/532 | Loss: -0.0061
+  Batch 150/532 | Loss: -0.0054
+  Batch 200/532 | Loss: 0.0570
+  Batch 250/532 | Loss: 0.0043
+  Batch 300/532 | Loss: 0.0240
+  Batch 350/532 | Loss: -0.0049
+  Batch 400/532 | Loss: -0.0059
+  Batch 450/532 | Loss: -0.0010
+  Batch 500/532 | Loss: -0.0020
+
+Train --> Loss: 0.0646 | AUROC: 0.9983
+Val   --> Loss: 3.2241 | AUROC: 0.7139 | Acc: 0.6420 | F1: 0.6358
+Alpha --> Mean: 0.529 | Std: 0.030 | Min: 0.480 | Max: 0.587
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+No improvement. Patience: 4/5
+
+====================================================
+EPOCH 12/15 -- Dynamic Reweighting
+====================================================
+  Batch 50/532 | Loss: 0.1604
+  Batch 100/532 | Loss: 0.0185
+  Batch 150/532 | Loss: -0.0066
+  Batch 200/532 | Loss: -0.0066
+  Batch 250/532 | Loss: -0.0068
+  Batch 300/532 | Loss: 0.4339
+  Batch 350/532 | Loss: -0.0067
+  Batch 400/532 | Loss: -0.0067
+  Batch 450/532 | Loss: -0.0047
+  Batch 500/532 | Loss: -0.0068
+
+Train --> Loss: 0.0383 | AUROC: 0.9993
+Val   --> Loss: 4.1625 | AUROC: 0.7270 | Acc: 0.6260 | F1: 0.6081
+Alpha --> Mean: 0.521 | Std: 0.028 | Min: 0.478 | Max: 0.581
+  WARNING: Alpha Std still low -- consider increasing entropy_weight to 0.05
+No improvement. Patience: 5/5
+Early stopping triggered.
+
+Phase 2 training complete.
+Best Val AUROC : 0.7423
