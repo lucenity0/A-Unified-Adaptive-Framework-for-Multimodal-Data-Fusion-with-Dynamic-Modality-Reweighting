@@ -1,0 +1,254 @@
+(venv) nafeess@Nafeess-MacBook-Pro Hateful memes static % cd src
+python3 train.py
+Using device: mps
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+The image processor of type `CLIPImageProcessor` is now loaded as a fast processor by default, even if the model checkpoint was saved with a slow processor. This is a breaking change and may produce slightly different outputs. To continue using the slow processor, instantiate this class with `use_fast=False`. 
+Loaded 8500 samples from ../Data/train-00000-of-00001-6587b3a58d350036.parquet
+Columns: ['image', 'id', 'img', 'label', 'text']
+Loaded 500 samples from ../Data/validation-00000-of-00001-1508d9e5032c2c1f.parquet
+Columns: ['image', 'id', 'img', 'label', 'text']
+Loading weights: 100%|███████████████████████████████████| 398/398 [00:00<00:00, 50546.02it/s]
+CLIPModel LOAD REPORT from: openai/clip-vit-base-patch32
+Key                                  | Status     |  | 
+-------------------------------------+------------+--+-
+vision_model.embeddings.position_ids | UNEXPECTED |  | 
+text_model.embeddings.position_ids   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED    :can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Total params    : 156,335,619
+Trainable params: 5,058,306
+
+==================================================
+EPOCH 1/15
+==================================================
+  Batch 50/532 | Loss: 0.8713
+  Batch 100/532 | Loss: 0.7419
+  Batch 150/532 | Loss: 0.7567
+  Batch 200/532 | Loss: 0.8324
+  Batch 250/532 | Loss: 0.7205
+  Batch 300/532 | Loss: 0.7112
+  Batch 350/532 | Loss: 0.6228
+  Batch 400/532 | Loss: 0.8934
+  Batch 450/532 | Loss: 0.4475
+  Batch 500/532 | Loss: 0.6170
+
+Train → Loss: 0.7460 | AUROC: 0.6882
+Val   → Loss: 0.9102 | AUROC: 0.6723 | Acc: 0.6080 | F1: 0.5977
+Alpha (learned static weight) → 0.4978  (text dominant)
+✅ Saved best model → AUROC: 0.6723
+
+==================================================
+EPOCH 2/15
+==================================================
+  Batch 50/532 | Loss: 0.4145
+  Batch 100/532 | Loss: 0.8369
+  Batch 150/532 | Loss: 0.5578
+  Batch 200/532 | Loss: 0.4814
+  Batch 250/532 | Loss: 0.7240
+  Batch 300/532 | Loss: 1.0677
+  Batch 350/532 | Loss: 0.3852
+  Batch 400/532 | Loss: 0.6552
+  Batch 450/532 | Loss: 0.6537
+  Batch 500/532 | Loss: 0.4936
+
+Train → Loss: 0.6506 | AUROC: 0.7915
+Val   → Loss: 0.9097 | AUROC: 0.6595 | Acc: 0.6100 | F1: 0.6076
+Alpha (learned static weight) → 0.4969  (text dominant)
+No improvement. Patience: 1/5
+
+==================================================
+EPOCH 3/15
+==================================================
+  Batch 50/532 | Loss: 0.8391
+  Batch 100/532 | Loss: 0.5165
+  Batch 150/532 | Loss: 0.5905
+  Batch 200/532 | Loss: 0.4849
+  Batch 250/532 | Loss: 0.7607
+  Batch 300/532 | Loss: 0.4418
+  Batch 350/532 | Loss: 0.5527
+  Batch 400/532 | Loss: 0.4690
+  Batch 450/532 | Loss: 0.5363
+  Batch 500/532 | Loss: 0.4955
+
+Train → Loss: 0.6095 | AUROC: 0.8224
+Val   → Loss: 1.0623 | AUROC: 0.6754 | Acc: 0.5920 | F1: 0.5662
+Alpha (learned static weight) → 0.4946  (text dominant)
+✅ Saved best model → AUROC: 0.6754
+
+==================================================
+EPOCH 4/15
+==================================================
+  Batch 50/532 | Loss: 0.9316
+  Batch 100/532 | Loss: 0.3359
+  Batch 150/532 | Loss: 0.6911
+  Batch 200/532 | Loss: 0.4060
+  Batch 250/532 | Loss: 0.7748
+  Batch 300/532 | Loss: 0.6128
+  Batch 350/532 | Loss: 0.6282
+  Batch 400/532 | Loss: 0.3885
+  Batch 450/532 | Loss: 0.6933
+  Batch 500/532 | Loss: 0.3936
+
+Train → Loss: 0.5609 | AUROC: 0.8534
+Val   → Loss: 0.9875 | AUROC: 0.6802 | Acc: 0.6120 | F1: 0.6047
+Alpha (learned static weight) → 0.4921  (text dominant)
+✅ Saved best model → AUROC: 0.6802
+
+==================================================
+EPOCH 5/15
+==================================================
+  Batch 50/532 | Loss: 0.5034
+  Batch 100/532 | Loss: 0.4549
+  Batch 150/532 | Loss: 0.2081
+  Batch 200/532 | Loss: 0.3715
+  Batch 250/532 | Loss: 0.1456
+  Batch 300/532 | Loss: 0.3027
+  Batch 350/532 | Loss: 0.5410
+  Batch 400/532 | Loss: 0.4360
+  Batch 450/532 | Loss: 0.8226
+  Batch 500/532 | Loss: 0.7203
+
+Train → Loss: 0.4900 | AUROC: 0.8915
+Val   → Loss: 1.0155 | AUROC: 0.7052 | Acc: 0.6340 | F1: 0.6209
+Alpha (learned static weight) → 0.4975  (text dominant)
+✅ Saved best model → AUROC: 0.7052
+
+==================================================
+EPOCH 6/15
+==================================================
+  Batch 50/532 | Loss: 0.2996
+  Batch 100/532 | Loss: 0.5603
+  Batch 150/532 | Loss: 0.2986
+  Batch 200/532 | Loss: 0.5670
+  Batch 250/532 | Loss: 0.4506
+  Batch 300/532 | Loss: 0.3040
+  Batch 350/532 | Loss: 0.2573
+  Batch 400/532 | Loss: 1.1687
+  Batch 450/532 | Loss: 0.2870
+  Batch 500/532 | Loss: 0.4086
+
+Train → Loss: 0.3845 | AUROC: 0.9349
+Val   → Loss: 1.2277 | AUROC: 0.7048 | Acc: 0.6280 | F1: 0.6155
+Alpha (learned static weight) → 0.4983  (text dominant)
+No improvement. Patience: 1/5
+
+==================================================
+EPOCH 7/15
+==================================================
+  Batch 50/532 | Loss: 0.3563
+  Batch 100/532 | Loss: 0.5481
+  Batch 150/532 | Loss: 0.1522
+  Batch 200/532 | Loss: 0.4397
+  Batch 250/532 | Loss: 0.0645
+  Batch 300/532 | Loss: 0.0587
+  Batch 350/532 | Loss: 0.3259
+  Batch 400/532 | Loss: 0.2093
+  Batch 450/532 | Loss: 0.3545
+  Batch 500/532 | Loss: 0.0985
+
+Train → Loss: 0.2859 | AUROC: 0.9650
+Val   → Loss: 1.4552 | AUROC: 0.7121 | Acc: 0.6500 | F1: 0.6451
+Alpha (learned static weight) → 0.5012  (image dominant)
+✅ Saved best model → AUROC: 0.7121
+
+==================================================
+EPOCH 8/15
+==================================================
+  Batch 50/532 | Loss: 0.0077
+  Batch 100/532 | Loss: 0.0857
+  Batch 150/532 | Loss: 0.4673
+  Batch 200/532 | Loss: 0.2910
+  Batch 250/532 | Loss: 0.0918
+  Batch 300/532 | Loss: 0.0093
+  Batch 350/532 | Loss: 0.2130
+  Batch 400/532 | Loss: 0.0116
+  Batch 450/532 | Loss: 0.9062
+  Batch 500/532 | Loss: 0.3348
+
+Train → Loss: 0.2036 | AUROC: 0.9832
+Val   → Loss: 1.8883 | AUROC: 0.7034 | Acc: 0.6380 | F1: 0.6332
+Alpha (learned static weight) → 0.5038  (image dominant)
+No improvement. Patience: 1/5
+
+==================================================
+EPOCH 9/15
+==================================================
+  Batch 50/532 | Loss: 0.0198
+  Batch 100/532 | Loss: 0.1816
+  Batch 150/532 | Loss: 0.0517
+  Batch 200/532 | Loss: 0.3201
+  Batch 250/532 | Loss: 0.0070
+  Batch 300/532 | Loss: 0.2656
+  Batch 350/532 | Loss: 0.5161
+  Batch 400/532 | Loss: 0.0018
+  Batch 450/532 | Loss: 0.0053
+  Batch 500/532 | Loss: 0.1976
+
+Train → Loss: 0.1452 | AUROC: 0.9916
+Val   → Loss: 2.7342 | AUROC: 0.7066 | Acc: 0.6260 | F1: 0.6081
+Alpha (learned static weight) → 0.5052  (image dominant)
+No improvement. Patience: 2/5
+
+==================================================
+EPOCH 10/15
+==================================================
+  Batch 50/532 | Loss: 0.2948
+  Batch 100/532 | Loss: 0.0314
+  Batch 150/532 | Loss: 0.0054
+  Batch 200/532 | Loss: 0.3130
+  Batch 250/532 | Loss: 0.2021
+  Batch 300/532 | Loss: 0.0099
+  Batch 350/532 | Loss: 0.0058
+  Batch 400/532 | Loss: 0.0042
+  Batch 450/532 | Loss: 0.0157
+  Batch 500/532 | Loss: 0.0232
+
+Train → Loss: 0.1027 | AUROC: 0.9961
+Val   → Loss: 3.3263 | AUROC: 0.7041 | Acc: 0.6120 | F1: 0.5937
+Alpha (learned static weight) → 0.5050  (image dominant)
+No improvement. Patience: 3/5
+
+==================================================
+EPOCH 11/15
+==================================================
+  Batch 50/532 | Loss: 0.1373
+  Batch 100/532 | Loss: 0.0018
+  Batch 150/532 | Loss: 0.5475
+  Batch 200/532 | Loss: 0.0001
+  Batch 250/532 | Loss: 0.0020
+  Batch 300/532 | Loss: 0.0302
+  Batch 350/532 | Loss: 0.0531
+  Batch 400/532 | Loss: 0.0231
+  Batch 450/532 | Loss: 0.4682
+  Batch 500/532 | Loss: 0.0048
+
+Train → Loss: 0.0744 | AUROC: 0.9981
+Val   → Loss: 3.6163 | AUROC: 0.6991 | Acc: 0.5920 | F1: 0.5704
+Alpha (learned static weight) → 0.5058  (image dominant)
+No improvement. Patience: 4/5
+
+==================================================
+EPOCH 12/15
+==================================================
+  Batch 50/532 | Loss: 0.0486
+  Batch 100/532 | Loss: 0.0002
+  Batch 150/532 | Loss: 0.0025
+  Batch 200/532 | Loss: 0.0051
+  Batch 250/532 | Loss: 0.0003
+  Batch 300/532 | Loss: 0.0001
+  Batch 350/532 | Loss: 0.0022
+  Batch 400/532 | Loss: 0.0070
+  Batch 450/532 | Loss: 0.0010
+  Batch 500/532 | Loss: 0.0003
+
+Train → Loss: 0.0405 | AUROC: 0.9992
+Val   → Loss: 3.7924 | AUROC: 0.7063 | Acc: 0.6300 | F1: 0.6155
+Alpha (learned static weight) → 0.5058  (image dominant)
+No improvement. Patience: 5/5
+Early stopping triggered.
+
+Training complete.
+Best Val AUROC : 0.7121
+
+Next step: run python3 run_ablation.py to compare all model variants
