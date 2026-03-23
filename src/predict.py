@@ -1,11 +1,8 @@
 """
 predict.py
 ==========
-Runs inference on the test set (which has no labels).
-Saves predictions to results/test_predictions.csv
-
-Output CSV columns:
-    index | prob_hateful | predicted_label | confidence
+Runs inference on the test set with Static Reweighting (Phase 1).
+Saves predictions to results/test_predictions_static.csv
 """
 
 import os
@@ -21,7 +18,7 @@ from torch.utils.data import DataLoader
 # ─────────────────────────────────────────────────────────────────
 # CONFIG
 # ─────────────────────────────────────────────────────────────────
-TEST_PARQUET    = "../Data/test/train-00000-of-00001-19a6f88cedb64664.parquet"
+TEST_PARQUET = "../Data/test/train-00000-of-00001-19a6f88cedb64664.parquet"
 CHECKPOINT_PATH = "../checkpoints/best_model.pt"
 RESULTS_DIR     = "../results"
 BATCH_SIZE      = 16
@@ -63,12 +60,22 @@ class TestDataset(HatefulMemesDataset):
             max_length=77
         )
 
+        sample_id = row['id'] if 'id' in row.index else idx
+        if torch.is_tensor(sample_id):
+            sample_id = sample_id.item()
+        elif hasattr(sample_id, "item"):
+            sample_id = sample_id.item()
+        sample_id = str(sample_id)
+        if sample_id.startswith("tensor(") and sample_id.endswith(")"):
+            sample_id = sample_id[7:-1]
+
         return {
-            'input_ids':      encoding['input_ids'].squeeze(0),
+            'input_ids': encoding['input_ids'].squeeze(0),
             'attention_mask': encoding['attention_mask'].squeeze(0),
-            'pixel_values':   encoding['pixel_values'].squeeze(0),
-            'label':          torch.tensor(label, dtype=torch.float32),
-            'text':           text
+            'pixel_values': encoding['pixel_values'].squeeze(0),
+            'label': torch.tensor(label, dtype=torch.float32),
+            'id': sample_id,
+            'text': text
         }
 
 
@@ -81,12 +88,16 @@ def main():
     )
 
     # ── Load Model ────────────────────────────────────────────────
-    model = AdaptiveFusionModel(freeze_clip=True).to(device)
+    model = AdaptiveFusionModel(freeze_clip=True, use_dynamic=False).to(device)
     checkpoint = torch.load(CHECKPOINT_PATH, map_location=device)
-    model.load_state_dict(checkpoint['model_state'])
+    state_dict = checkpoint['model_state'] if isinstance(checkpoint, dict) and 'model_state' in checkpoint else checkpoint
+    model.load_state_dict(state_dict)
     model.eval()
-    print(f"Loaded model from epoch {checkpoint['epoch']} "
-          f"(Val AUROC: {checkpoint['val_auroc']:.4f})")
+    if isinstance(checkpoint, dict) and 'epoch' in checkpoint and 'val_auroc' in checkpoint:
+        print(f"Loaded static model from epoch {checkpoint['epoch']} "
+              f"(Val AUROC: {checkpoint['val_auroc']:.4f})")
+    else:
+        print("Loaded static model checkpoint.")
 
     # ── Load Test Data ────────────────────────────────────────────
     processor   = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -95,7 +106,7 @@ def main():
                                shuffle=False, num_workers=2)
 
     # ── Run Inference ─────────────────────────────────────────────
-    all_probs, all_preds, all_alphas, all_texts = [], [], [], []
+    all_ids, all_probs, all_preds, all_alphas, all_texts = [], [], [], [], []
 
     with torch.no_grad():
         for batch in test_loader:
@@ -109,9 +120,9 @@ def main():
             preds = (probs >= 0.5).astype(int)
 
             # Static alpha is a scalar — same value for all samples in batch
-            alpha_val = alpha.item() if hasattr(alpha, 'item') else float(alpha)
-            alpha_means = [alpha_val] * len(probs)
+            alpha_means = alpha.view(-1).cpu().numpy().tolist()
 
+            all_ids.extend(batch['id'])
             all_probs.extend(probs)
             all_preds.extend(preds)
             all_alphas.extend(alpha_means)
@@ -119,22 +130,17 @@ def main():
 
     # ── Save to CSV ───────────────────────────────────────────────
     results_df = pd.DataFrame({
-        'text'            : all_texts,
-        'prob_hateful'    : np.round(all_probs, 4),
-        'predicted_label' : all_preds,          # 0 = not hateful, 1 = hateful
-        'confidence'      : [                   # how confident the model is
-            round(p if p >= 0.5 else 1 - p, 4)
-            for p in all_probs
-        ],
-        'dominant_modality': [                  # which modality drove the prediction
-            'image' if a > 0.5 else 'text'
-            for a in all_alphas
-        ],
-        'alpha_mean'      : np.round(all_alphas, 4)
+        'id': all_ids,
+        'text': all_texts,
+        'prob_hateful': np.round(all_probs, 4),
+        'predicted_label': all_preds,
+        'confidence': [round(p if p >= 0.5 else 1 - p, 4) for p in all_probs],
+        'dominant_modality': ['image' if a > 0.5 else 'text' for a in all_alphas],
+        'alpha_mean': np.round(all_alphas, 4)
     })
 
-    save_path = os.path.join(RESULTS_DIR, "test_predictions.csv")
-    results_df.to_csv(save_path, index=True)
+    save_path = os.path.join(RESULTS_DIR, "test_predictions_static.csv")
+    results_df.to_csv(save_path, index=False)
 
     # ── Print Summary ─────────────────────────────────────────────
     total    = len(results_df)
@@ -147,7 +153,7 @@ def main():
     print(f"  Predicted Not Hateful : {total-hateful} ({100*(total-hateful)/total:.1f}%)")
     print(f"  Image-dominant memes  : {img_dom} ({100*img_dom/total:.1f}%)")
     print(f"  Text-dominant  memes  : {txt_dom} ({100*txt_dom/total:.1f}%)")
-    print(f"\nSaved → {save_path}")
+    print(f"\nSaved --> {save_path}")
 
 
 if __name__ == "__main__":
