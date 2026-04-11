@@ -113,7 +113,8 @@ def evaluate(model, loader, criterion, device):
             probs = torch.sigmoid(logits).cpu().numpy()
             all_preds.extend(probs)
             all_labels.extend(labels.cpu().numpy())
-            all_alphas.extend(alpha.mean(dim=-1).cpu().numpy())
+            # alpha is already 1D [batch_size] after squeeze in model
+            all_alphas.extend(alpha.cpu().numpy())
 
     all_preds  = np.array(all_preds)
     all_labels = np.array(all_labels)
