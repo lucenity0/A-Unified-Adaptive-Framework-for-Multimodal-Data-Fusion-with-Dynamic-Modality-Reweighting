@@ -21,7 +21,7 @@ import torch.nn.functional as F
 import numpy as np
 from transformers import CLIPModel, CLIPProcessor, get_cosine_schedule_with_warmup
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 import pandas as pd
 from PIL import Image
 import io
@@ -45,6 +45,13 @@ CONFIG = {
     "focal_gamma"    : 2.0,            # Focal loss gamma (focus on hard examples)
     "label_smoothing": 0.1,
     "static_alpha"   : 0.5,            # STATIC: Fixed fusion weight
+    "fairness_lambda": 0.05,
+    "use_balanced_sampler": True,
+    "use_temperature_scaling": True,
+    "temperature_grid_min": 0.70,
+    "temperature_grid_max": 1.50,
+    "temperature_grid_step": 0.05,
+    "group_columns": ["group", "demographic_group", "protected_group", "identity", "race", "gender"],
     "checkpoint_dir" : "../checkpoints",
     "checkpoint_name": "best_model_static_v2.pt",
     "patience"       : 7
@@ -296,7 +303,21 @@ class HatefulMemesDatasetV2:
         self.df = pd.read_parquet(parquet_path)
         self.processor = processor
         self.max_text_length = max_text_length
+        self.group_col = self._detect_group_column()
+        if self.group_col is not None:
+            group_values = self.df[self.group_col].fillna("unknown").astype(str)
+            self.group_to_id = {g: i for i, g in enumerate(sorted(group_values.unique()))}
+        else:
+            self.group_to_id = {"all": 0}
         print(f"Loaded {len(self.df)} samples from {parquet_path}")
+        if self.group_col is not None:
+            print(f"Detected subgroup column: {self.group_col} ({len(self.group_to_id)} groups)")
+
+    def _detect_group_column(self):
+        for col in CONFIG["group_columns"]:
+            if col in self.df.columns:
+                return col
+        return None
 
     def __len__(self):
         return len(self.df)
@@ -314,6 +335,11 @@ class HatefulMemesDatasetV2:
         
         text = str(row['text']) if pd.notna(row['text']) else ""
         label = int(row['label']) if 'label' in row.index and pd.notna(row['label']) else -1
+        if self.group_col is not None:
+            group_name = str(row[self.group_col]) if pd.notna(row[self.group_col]) else "unknown"
+        else:
+            group_name = "all"
+        group_id = self.group_to_id.get(group_name, 0)
         
         encoding = self.processor(
             text=text,
@@ -328,7 +354,8 @@ class HatefulMemesDatasetV2:
             'input_ids': encoding['input_ids'].squeeze(0),
             'attention_mask': encoding['attention_mask'].squeeze(0),
             'pixel_values': encoding['pixel_values'].squeeze(0),
-            'label': torch.tensor(label, dtype=torch.float32)
+            'label': torch.tensor(label, dtype=torch.float32),
+            'group': torch.tensor(group_id, dtype=torch.long)
         }
 
 
@@ -348,6 +375,111 @@ def find_optimal_threshold(labels, probs):
             best_threshold = thresh
     
     return best_threshold, best_acc
+
+
+def fit_temperature_by_brier(labels, probs):
+    if not CONFIG["use_temperature_scaling"]:
+        return 1.0
+    eps = 1e-6
+    labels = labels.astype(np.float32)
+    probs = np.clip(probs.astype(np.float32), eps, 1 - eps)
+    logits = np.log(probs / (1 - probs))
+    temps = np.arange(
+        CONFIG["temperature_grid_min"],
+        CONFIG["temperature_grid_max"] + 1e-9,
+        CONFIG["temperature_grid_step"]
+    )
+    best_t, best_brier = 1.0, float("inf")
+    for t in temps:
+        p = 1.0 / (1.0 + np.exp(-logits / t))
+        brier = np.mean((p - labels) ** 2)
+        if brier < best_brier:
+            best_brier = brier
+            best_t = float(t)
+    return best_t
+
+
+def compute_group_stats(labels, probs, preds, groups):
+    groups = groups.astype(np.int64)
+    unique_groups = np.unique(groups)
+    if unique_groups.size <= 1:
+        return None
+    stats = {}
+    tprs, fprs, fnrs, aucs = [], [], [], []
+    for g in unique_groups:
+        mask = groups == g
+        y = labels[mask]
+        p = probs[mask]
+        yhat = preds[mask]
+        pos = np.sum(y == 1)
+        neg = np.sum(y == 0)
+        tp = np.sum((yhat == 1) & (y == 1))
+        fp = np.sum((yhat == 1) & (y == 0))
+        fn = np.sum((yhat == 0) & (y == 1))
+        tpr = tp / max(pos, 1)
+        fpr = fp / max(neg, 1)
+        fnr = fn / max(pos, 1)
+        if np.unique(y).size > 1:
+            auc = roc_auc_score(y, p)
+            aucs.append(auc)
+        else:
+            auc = float("nan")
+        tprs.append(tpr)
+        fprs.append(fpr)
+        fnrs.append(fnr)
+        stats[int(g)] = {
+            "size": int(mask.sum()),
+            "tpr": float(tpr),
+            "fpr": float(fpr),
+            "fnr": float(fnr),
+            "auroc": float(auc) if not np.isnan(auc) else float("nan")
+        }
+    gap = max(np.max(tprs) - np.min(tprs), np.max(fprs) - np.min(fprs))
+    result = {
+        "stats": stats,
+        "equalized_odds_gap": float(gap),
+        "fpr_gap": float(np.max(fprs) - np.min(fprs)),
+        "fnr_gap": float(np.max(fnrs) - np.min(fnrs)),
+        "auroc_gap": float(np.max(aucs) - np.min(aucs)) if len(aucs) >= 2 else float("nan")
+    }
+    return result
+
+
+def find_fair_threshold(labels, probs, groups):
+    best_threshold = 0.5
+    best_score = -1e9
+    best_acc = 0.0
+    best_gap = 0.0
+    for thresh in np.arange(0.3, 0.7, 0.01):
+        preds = (probs >= thresh).astype(int)
+        acc = accuracy_score(labels, preds)
+        grp = compute_group_stats(labels, probs, preds, groups)
+        gap = grp["equalized_odds_gap"] if grp is not None else 0.0
+        score = acc - CONFIG["fairness_lambda"] * gap
+        if score > best_score:
+            best_score = score
+            best_threshold = float(thresh)
+            best_acc = float(acc)
+            best_gap = float(gap)
+    return best_threshold, best_acc, best_gap
+
+
+def make_weighted_sampler(dataset):
+    labels = dataset.df["label"].astype(int).tolist()
+    if dataset.group_col is not None:
+        groups = dataset.df[dataset.group_col].fillna("unknown").astype(str).tolist()
+        keys = list(zip(labels, groups))
+    else:
+        keys = [(y, "all") for y in labels]
+    counts = {}
+    for k in keys:
+        counts[k] = counts.get(k, 0) + 1
+    weights = [1.0 / counts[k] for k in keys]
+    return WeightedRandomSampler(
+        weights=torch.tensor(weights, dtype=torch.double),
+        num_samples=len(weights),
+        replacement=True
+    )
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -409,7 +541,7 @@ def train_one_epoch(model, loader, optimizer, scheduler, criterion, device, grad
 def evaluate(model, loader, criterion, device):
     model.eval()
     total_loss = 0
-    all_preds, all_labels, all_alphas = [], [], []
+    all_preds, all_labels, all_alphas, all_groups = [], [], [], []
     
     with torch.no_grad():
         for batch in loader:
@@ -418,6 +550,7 @@ def evaluate(model, loader, criterion, device):
             pixel_values = batch['pixel_values'].to(device)
             labels = batch['label'].to(device)
             
+            groups = batch['group'].to(device)
             logits, alpha = model(input_ids, attention_mask, pixel_values)
             loss = criterion(logits, labels)
             total_loss += loss.item()
@@ -426,25 +559,32 @@ def evaluate(model, loader, criterion, device):
             all_preds.extend(probs)
             all_labels.extend(labels.cpu().numpy())
             all_alphas.extend(alpha.cpu().numpy())
+            all_groups.extend(groups.cpu().numpy())
     
     all_preds = np.array(all_preds)
     all_labels = np.array(all_labels)
     all_alphas = np.array(all_alphas)
-    
-    # Find optimal threshold
-    opt_thresh, opt_acc = find_optimal_threshold(all_labels, all_preds)
+    all_groups = np.array(all_groups)
+
+    temperature = fit_temperature_by_brier(all_labels, all_preds)
+    logits_np = np.log(np.clip(all_preds, 1e-6, 1 - 1e-6) / np.clip(1 - all_preds, 1e-6, 1 - 1e-6))
+    all_preds_cal = 1.0 / (1.0 + np.exp(-logits_np / temperature))
+
+    # Find fairness-aware threshold
+    opt_thresh, opt_acc, fairness_gap = find_fair_threshold(all_labels, all_preds_cal, all_groups)
     
     # Metrics with default threshold
-    bin_preds = (all_preds >= 0.5).astype(int)
+    bin_preds = (all_preds_cal >= 0.5).astype(int)
     accuracy = accuracy_score(all_labels, bin_preds)
     
     # Metrics with optimal threshold
-    bin_preds_opt = (all_preds >= opt_thresh).astype(int)
+    bin_preds_opt = (all_preds_cal >= opt_thresh).astype(int)
     accuracy_opt = accuracy_score(all_labels, bin_preds_opt)
     
-    auroc = roc_auc_score(all_labels, all_preds)
+    auroc = roc_auc_score(all_labels, all_preds_cal)
     f1 = f1_score(all_labels, bin_preds, average='macro')
     f1_opt = f1_score(all_labels, bin_preds_opt, average='macro')
+    group_metrics = compute_group_stats(all_labels, all_preds_cal, bin_preds_opt, all_groups)
     
     return {
         'loss': total_loss / len(loader),
@@ -454,6 +594,9 @@ def evaluate(model, loader, criterion, device):
         'f1': f1,
         'f1_opt': f1_opt,
         'opt_thresh': opt_thresh,
+        'temperature': temperature,
+        'fairness_gap': fairness_gap,
+        'group_metrics': group_metrics,
         'alpha_mean': all_alphas.mean(),
         'alpha_std': all_alphas.std(),
         'alpha_min': all_alphas.min(),
@@ -481,10 +624,17 @@ def main():
     train_dataset = HatefulMemesDatasetV2(CONFIG["train_parquet"], processor)
     val_dataset = HatefulMemesDatasetV2(CONFIG["val_parquet"], processor)
     
-    train_loader = DataLoader(
-        train_dataset, batch_size=CONFIG["batch_size"],
-        shuffle=True, num_workers=2, pin_memory=False
-    )
+    if CONFIG["use_balanced_sampler"]:
+        train_sampler = make_weighted_sampler(train_dataset)
+        train_loader = DataLoader(
+            train_dataset, batch_size=CONFIG["batch_size"],
+            sampler=train_sampler, num_workers=2, pin_memory=False
+        )
+    else:
+        train_loader = DataLoader(
+            train_dataset, batch_size=CONFIG["batch_size"],
+            shuffle=True, num_workers=2, pin_memory=False
+        )
     val_loader = DataLoader(
         val_dataset, batch_size=CONFIG["batch_size"],
         shuffle=False, num_workers=2, pin_memory=False
@@ -536,6 +686,7 @@ def main():
     )
     
     # Training loop
+    best_score = -1e9
     best_auroc = 0.0
     best_acc = 0.0
     patience_ctr = 0
@@ -556,11 +707,20 @@ def main():
         print(f"Val   --> Loss: {metrics['loss']:.4f} | AUROC: {metrics['auroc']:.4f}")
         print(f"Val   --> Acc@0.5: {metrics['accuracy']:.4f} | Acc@{metrics['opt_thresh']:.2f}: {metrics['accuracy_opt']:.4f}")
         print(f"Val   --> F1@0.5: {metrics['f1']:.4f} | F1@opt: {metrics['f1_opt']:.4f}")
+        print(f"Val   --> Temp: {metrics['temperature']:.2f} | FairGap: {metrics['fairness_gap']:.4f}")
         print(f"Alpha --> Mean: {metrics['alpha_mean']:.3f} | Std: {metrics['alpha_std']:.3f} | "
               f"Range: [{metrics['alpha_min']:.3f}, {metrics['alpha_max']:.3f}]")
-        
-        # Save best model (by AUROC)
-        if metrics['auroc'] > best_auroc:
+        if metrics['group_metrics'] is not None:
+            gm = metrics['group_metrics']
+            print(
+                f"Group --> EqOddsGap: {gm['equalized_odds_gap']:.4f} | "
+                f"FPRGap: {gm['fpr_gap']:.4f} | FNRGap: {gm['fnr_gap']:.4f}"
+            )
+
+        # Save best model (fairness-aware objective)
+        score = metrics['auroc'] - CONFIG["fairness_lambda"] * metrics['fairness_gap']
+        if score > best_score:
+            best_score = score
             best_auroc = metrics['auroc']
             best_acc = metrics['accuracy_opt']
             patience_ctr = 0
@@ -574,10 +734,16 @@ def main():
                 'val_acc': metrics['accuracy'],
                 'val_acc_opt': metrics['accuracy_opt'],
                 'opt_threshold': metrics['opt_thresh'],
+                'temperature': metrics['temperature'],
+                'fairness_gap': metrics['fairness_gap'],
+                'selection_score': score,
                 'alpha_mean': metrics['alpha_mean'],
                 'config': CONFIG
             }, path)
-            print(f"✅ Saved best model --> AUROC: {best_auroc:.4f} | Acc: {best_acc:.4f}")
+            print(
+                f"✅ Saved best model --> Score: {best_score:.4f} | "
+                f"AUROC: {best_auroc:.4f} | Acc: {best_acc:.4f}"
+            )
         else:
             patience_ctr += 1
             print(f"No improvement. Patience: {patience_ctr}/{CONFIG['patience']}")
