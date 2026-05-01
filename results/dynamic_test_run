@@ -1,0 +1,250 @@
+============================================================
+EPOCH 1/20 -- Dynamic Reweighting 
+============================================================
+  Batch 100/1063 | Loss: 0.0771
+  Batch 200/1063 | Loss: 0.0623
+  Batch 300/1063 | Loss: 0.0719
+  Batch 400/1063 | Loss: 0.0741
+  Batch 500/1063 | Loss: 0.0645
+  Batch 600/1063 | Loss: 0.1031
+  Batch 700/1063 | Loss: 0.0741
+  Batch 800/1063 | Loss: 0.0712
+  Batch 900/1063 | Loss: 0.0320
+  Batch 1000/1063 | Loss: 0.0488
+
+Train --> Loss: 0.0650 | AUROC: 0.6850
+Val   --> Loss: 0.0749 | AUROC: 0.7195
+Val   --> Acc@0.5: 0.6580 | Acc@0.46: 0.6840
+Val   --> F1@0.5: 0.6567 | F1@opt: 0.6748
+Alpha --> Mean: 0.545 | Std: 0.035 | Range: [0.418, 0.641]
+✅ Saved best model --> AUROC: 0.7195 | Acc: 0.6840
+
+============================================================
+EPOCH 2/20 -- Dynamic Reweighting 
+============================================================
+  Batch 100/1063 | Loss: 0.0528
+  Batch 200/1063 | Loss: 0.0888
+  Batch 300/1063 | Loss: 0.0401
+  Batch 400/1063 | Loss: 0.0520
+  Batch 500/1063 | Loss: 0.0578
+  Batch 600/1063 | Loss: 0.0466
+  Batch 700/1063 | Loss: 0.0173
+  Batch 800/1063 | Loss: 0.0377
+  Batch 900/1063 | Loss: 0.0417
+  Batch 1000/1063 | Loss: 0.1039
+Python(61567) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(61570) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0536 | AUROC: 0.8228
+Val   --> Loss: 0.0693 | AUROC: 0.7373
+Val   --> Acc@0.5: 0.6660 | Acc@0.53: 0.6880
+Val   --> F1@0.5: 0.6565 | F1@opt: 0.6851
+Alpha --> Mean: 0.490 | Std: 0.032 | Range: [0.346, 0.573]
+✅ Saved best model --> AUROC: 0.7373 | Acc: 0.6880
+
+============================================================
+EPOCH 3/20 -- Dynamic Reweighting 
+============================================================
+Python(61589) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(61597) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+  Batch 100/1063 | Loss: 0.0381
+  Batch 200/1063 | Loss: 0.0238
+  Batch 300/1063 | Loss: 0.0171
+  Batch 400/1063 | Loss: 0.0209
+  Batch 500/1063 | Loss: 0.0427
+  Batch 600/1063 | Loss: 0.0222
+  Batch 700/1063 | Loss: 0.0675
+  Batch 800/1063 | Loss: 0.0304
+  Batch 900/1063 | Loss: 0.0286
+  Batch 1000/1063 | Loss: 0.0315
+Python(61878) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(61881) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0441 | AUROC: 0.8872
+Val   --> Loss: 0.0983 | AUROC: 0.7523
+Val   --> Acc@0.5: 0.6840 | Acc@0.42: 0.6940
+Val   --> F1@0.5: 0.6837 | F1@opt: 0.6894
+Alpha --> Mean: 0.446 | Std: 0.047 | Range: [0.276, 0.541]
+✅ Saved best model --> AUROC: 0.7523 | Acc: 0.7040
+
+============================================================
+EPOCH 4/20 -- Dynamic Reweighting 
+============================================================
+Python(61889) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(61890) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+  Batch 100/1063 | Loss: 0.0262
+  Batch 200/1063 | Loss: 0.0075
+  Batch 300/1063 | Loss: 0.0014
+  Batch 400/1063 | Loss: 0.0246
+  Batch 500/1063 | Loss: 0.0168
+  Batch 600/1063 | Loss: 0.0210
+  Batch 700/1063 | Loss: 0.0089
+  Batch 800/1063 | Loss: 0.0332
+  Batch 900/1063 | Loss: 0.0121
+  Batch 1000/1063 | Loss: 0.0117
+Python(62204) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(62216) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0313 | AUROC: 0.9423
+Val   --> Loss: 0.1178 | AUROC: 0.7482
+Val   --> Acc@0.5: 0.6840 | Acc@0.33: 0.6890
+Val   --> F1@0.5: 0.6837 | F1@opt: 0.6994
+Alpha --> Mean: 0.521 | Std: 0.020 | Range: [0.449, 0.581]
+No improvement. Patience: 1/7
+
+============================================================
+EPOCH 5/20 -- Dynamic Reweighting 
+============================================================
+Python(62224) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(62227) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+  Batch 100/1063 | Loss: 0.0025
+  Batch 200/1063 | Loss: 0.0015
+  Batch 300/1063 | Loss: 0.0010
+  Batch 400/1063 | Loss: 0.0167
+  Batch 500/1063 | Loss: 0.0032
+  Batch 600/1063 | Loss: 0.0244
+  Batch 700/1063 | Loss: 0.0251
+  Batch 800/1063 | Loss: 0.0023
+  Batch 900/1063 | Loss: 0.0074
+  Batch 1000/1063 | Loss: 0.0454
+Python(62626) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(62629) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0206 | AUROC: 0.9719
+Val   --> Loss: 0.2162 | AUROC: 0.7488
+Val   --> Acc@0.5: 0.6700 | Acc@0.30: 0.6900
+Val   --> F1@0.5: 0.6665 | F1@opt: 0.6898
+Alpha --> Mean: 0.473 | Std: 0.019 | Range: [0.423, 0.554]
+No improvement. Patience: 2/7
+
+============================================================
+EPOCH 6/20 -- Dynamic Reweighting 
+============================================================
+Python(62659) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(62662) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+  Batch 100/1063 | Loss: 0.0174
+  Batch 200/1063 | Loss: 0.0056
+  Batch 300/1063 | Loss: -0.0010
+  Batch 400/1063 | Loss: 0.0014
+  Batch 500/1063 | Loss: -0.0006
+  Batch 600/1063 | Loss: 0.0005
+  Batch 700/1063 | Loss: 0.0146
+  Batch 800/1063 | Loss: 0.0130
+  Batch 900/1063 | Loss: 0.0045
+  Batch 1000/1063 | Loss: 0.0656
+Python(62918) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(62922) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0142 | AUROC: 0.9847
+Val   --> Loss: 0.2563 | AUROC: 0.7496
+Val   --> Acc@0.5: 0.6620 | Acc@0.30: 0.6820
+Val   --> F1@0.5: 0.6542 | F1@opt: 0.6794
+Alpha --> Mean: 0.505 | Std: 0.016 | Range: [0.465, 0.574]
+No improvement. Patience: 3/7
+
+============================================================
+EPOCH 7/20 -- Dynamic Reweighting 
+============================================================
+Python(62932) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(62935) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+  Batch 100/1063 | Loss: 0.0023
+  Batch 200/1063 | Loss: -0.0015
+  Batch 300/1063 | Loss: -0.0013
+  Batch 400/1063 | Loss: 0.0559
+  Batch 500/1063 | Loss: 0.0096
+  Batch 600/1063 | Loss: -0.0024
+  Batch 700/1063 | Loss: 0.0001
+  Batch 800/1063 | Loss: -0.0014
+  Batch 900/1063 | Loss: -0.0017
+  Batch 1000/1063 | Loss: 0.0195
+Python(63388) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(63391) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0081 | AUROC: 0.9926
+Val   --> Loss: 0.3546 | AUROC: 0.7455
+Val   --> Acc@0.5: 0.6520 | Acc@0.31: 0.6640
+Val   --> F1@0.5: 0.6392 | F1@opt: 0.6565
+Alpha --> Mean: 0.483 | Std: 0.016 | Range: [0.442, 0.546]
+No improvement. Patience: 4/7
+
+============================================================
+EPOCH 8/20 -- Dynamic Reweighting 
+============================================================
+Python(63481) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(63484) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+  Batch 100/1063 | Loss: -0.0010
+  Batch 200/1063 | Loss: 0.0377
+  Batch 300/1063 | Loss: 0.0066
+  Batch 400/1063 | Loss: -0.0022
+  Batch 500/1063 | Loss: -0.0018
+  Batch 600/1063 | Loss: 0.0014
+  Batch 700/1063 | Loss: -0.0014
+  Batch 800/1063 | Loss: -0.0012
+  Batch 900/1063 | Loss: 0.0020
+  Batch 1000/1063 | Loss: -0.0021
+Python(64154) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(64197) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0044 | AUROC: 0.9959
+Val   --> Loss: 0.3663 | AUROC: 0.7200
+Val   --> Acc@0.5: 0.6620 | Acc@0.37: 0.6680
+Val   --> F1@0.5: 0.6558 | F1@opt: 0.6628
+Alpha --> Mean: 0.526 | Std: 0.014 | Range: [0.485, 0.573]
+No improvement. Patience: 5/7
+
+============================================================
+EPOCH 9/20 -- Dynamic Reweighting 
+============================================================
+Python(64208) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(64211) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+  Batch 100/1063 | Loss: 0.0025
+  Batch 200/1063 | Loss: -0.0022
+  Batch 300/1063 | Loss: -0.0016
+  Batch 400/1063 | Loss: -0.0014
+  Batch 500/1063 | Loss: -0.0004
+  Batch 600/1063 | Loss: -0.0020
+  Batch 700/1063 | Loss: -0.0024
+  Batch 800/1063 | Loss: -0.0017
+  Batch 900/1063 | Loss: -0.0020
+  Batch 1000/1063 | Loss: -0.0022
+Python(64847) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(64850) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0034 | AUROC: 0.9963
+Val   --> Loss: 0.3338 | AUROC: 0.7454
+Val   --> Acc@0.5: 0.6600 | Acc@0.30: 0.6740
+Val   --> F1@0.5: 0.6520 | F1@opt: 0.6680
+Alpha --> Mean: 0.494 | Std: 0.013 | Range: [0.466, 0.545]
+No improvement. Patience: 6/7
+
+============================================================
+EPOCH 10/20 -- Dynamic Reweighting 
+============================================================
+Python(64881) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(64916) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+  Batch 100/1063 | Loss: -0.0026
+  Batch 200/1063 | Loss: -0.0023
+  Batch 300/1063 | Loss: -0.0022
+  Batch 400/1063 | Loss: -0.0023
+  Batch 500/1063 | Loss: -0.0024
+  Batch 600/1063 | Loss: -0.0025
+  Batch 700/1063 | Loss: -0.0027
+  Batch 800/1063 | Loss: -0.0022
+  Batch 900/1063 | Loss: -0.0026
+  Batch 1000/1063 | Loss: 0.0039
+Python(66672) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(66675) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Train --> Loss: 0.0011 | AUROC: 0.9981
+Val   --> Loss: 0.3886 | AUROC: 0.7469
+Val   --> Acc@0.5: 0.6620 | Acc@0.30: 0.6700
+Val   --> F1@0.5: 0.6546 | F1@opt: 0.6643
+Alpha --> Mean: 0.506 | Std: 0.011 | Range: [0.476, 0.553]
+No improvement. Patience: 7/7
+Early stopping triggered.
+
+============================================================
+Training Complete!
+Best Val AUROC: 0.7523
+Best Val Accuracy (optimal threshold): 0.7040
+============================================================
