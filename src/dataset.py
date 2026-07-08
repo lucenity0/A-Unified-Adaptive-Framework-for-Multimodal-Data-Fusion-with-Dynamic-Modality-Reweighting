@@ -1,103 +1,123 @@
 """
 dataset.py
 ==========
-Loads the Hateful Memes dataset directly from Parquet files.
-No conversion needed — reads image bytes and text on the fly.
+HatefulMemesDatasetV2 — standalone module.
+
+V3 adds an optional `augment` flag for the training split:
+  - Random horizontal flip of image (p=0.3)
+  - Random colour jitter (brightness/contrast, p=0.3)
+  - Random text-token dropout (replaces up to 10 % of non-special tokens with
+    the [UNK] id, probability per token = 0.1)
+
+These augmentations are applied *before* the CLIP processor so that the
+processor's normalization/resizing still runs last.  Pass augment=False
+(default) for the validation / test split.
 """
 
 import io
-import torch
+import random
+
+import numpy as np
 import pandas as pd
-from PIL import Image
-from torch.utils.data import Dataset, DataLoader
-from transformers import CLIPProcessor
+import torch
+from PIL import Image, ImageEnhance
 
 
-class HatefulMemesDataset(Dataset):
+class HatefulMemesDatasetV2(torch.utils.data.Dataset):
     """
-    Reads directly from .parquet files downloaded from HuggingFace.
+    Dataset for the Hateful Memes Challenge stored as a Parquet file.
 
-    Expected columns: 'image', 'text', 'label'
-    - image : dict with 'bytes' key (PNG bytes)
-    - text  : string
-    - label : 0 or 1
+    Expected schema
+    ---------------
+    image  : bytes / dict{"bytes": bytes} / path str
+    text   : str
+    label  : int  (0 = benign, 1 = hateful)   — optional for test sets
     """
-    def __init__(self, parquet_path, processor, max_text_length=77):
-        self.df              = pd.read_parquet(parquet_path)
-        self.processor       = processor
-        self.max_text_length = max_text_length
 
-        print(f"Loaded {len(self.df)} samples from {parquet_path}")
-        print(f"Columns: {list(self.df.columns)}")
+    def __init__(
+        self,
+        parquet_path: str,
+        processor,
+        max_text_length: int = 77,
+        augment: bool = False,
+        max_samples: int = 0,
+    ):
+        self.df = pd.read_parquet(parquet_path)
+        if max_samples and max_samples < len(self.df):
+            # random (seeded) subsample — used for smoke tests, 0 = full set
+            self.df = self.df.sample(n=max_samples, random_state=42).reset_index(drop=True)
+        self.processor  = processor
+        self.max_len    = max_text_length
+        self.augment    = augment
+        print(f"[Dataset] Loaded {len(self.df)} samples from {parquet_path}"
+              f"  |  augment={augment}")
 
-    def __len__(self):
+    # ── length ────────────────────────────────────────────────────────────────
+    def __len__(self) -> int:
         return len(self.df)
 
-    def __getitem__(self, idx):
+    # ── single item ───────────────────────────────────────────────────────────
+    def __getitem__(self, idx: int) -> dict:
         row = self.df.iloc[idx]
 
-        # ── Load Image ────────────────────────────────────────────
-        img_data = row['image']
-
-        if isinstance(img_data, dict) and 'bytes' in img_data:
-            image = Image.open(io.BytesIO(img_data['bytes'])).convert("RGB")
+        # ── load image ────────────────────────────────────────────────────────
+        img_data = row["image"]
+        if isinstance(img_data, dict) and "bytes" in img_data:
+            image = Image.open(io.BytesIO(img_data["bytes"])).convert("RGB")
         elif isinstance(img_data, bytes):
             image = Image.open(io.BytesIO(img_data)).convert("RGB")
         else:
             image = Image.open(str(img_data)).convert("RGB")
 
-        # ── Load Text ─────────────────────────────────────────────
-        text = str(row['text']) if pd.notna(row['text']) else ""
+        # ── load text ─────────────────────────────────────────────────────────
+        text  = str(row["text"]) if pd.notna(row["text"]) else ""
+        label = (
+            int(row["label"])
+            if "label" in row.index and pd.notna(row["label"])
+            else -1
+        )
 
-        # ── Load Label ────────────────────────────────────────────
-        label = int(row['label']) if 'label' in row.index and pd.notna(row['label']) else -1
+        # ── optional augmentation (training only) ─────────────────────────────
+        if self.augment:
+            image = self._augment_image(image)
+            text  = self._augment_text(text)
 
-        # ── Preprocess with CLIP ──────────────────────────────────
-        encoding = self.processor(
+        # ── CLIP processor ────────────────────────────────────────────────────
+        enc = self.processor(
             text=text,
             images=image,
             return_tensors="pt",
             padding="max_length",
             truncation=True,
-            max_length=self.max_text_length
+            max_length=self.max_len,
         )
 
         return {
-            'input_ids':      encoding['input_ids'].squeeze(0),
-            'attention_mask': encoding['attention_mask'].squeeze(0),
-            'pixel_values':   encoding['pixel_values'].squeeze(0),
-            'label':          torch.tensor(label, dtype=torch.float32)
+            "input_ids":      enc["input_ids"].squeeze(0),
+            "attention_mask": enc["attention_mask"].squeeze(0),
+            "pixel_values":   enc["pixel_values"].squeeze(0),
+            "label":          torch.tensor(label, dtype=torch.float32),
         }
 
+    # ── augmentation helpers ──────────────────────────────────────────────────
+    @staticmethod
+    def _augment_image(image: Image.Image) -> Image.Image:
+        """Light colour / geometry augmentation — keeps semantic content intact."""
+        if random.random() < 0.3:
+            image = image.transpose(Image.FLIP_LEFT_RIGHT)
+        if random.random() < 0.3:
+            factor = random.uniform(0.8, 1.2)
+            image  = ImageEnhance.Brightness(image).enhance(factor)
+        if random.random() < 0.3:
+            factor = random.uniform(0.8, 1.2)
+            image  = ImageEnhance.Contrast(image).enhance(factor)
+        return image
 
-def get_dataloaders(train_parquet, val_parquet, batch_size=16, num_workers=2):
-    """
-    Returns train and validation DataLoaders.
-
-    Args:
-        train_parquet : path to train parquet file
-        val_parquet   : path to validation parquet file
-        batch_size    : 16 recommended for M2 Mac
-        num_workers   : 2 is safe on Mac
-    """
-    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-
-    train_dataset = HatefulMemesDataset(train_parquet, processor)
-    val_dataset   = HatefulMemesDataset(val_parquet,   processor)
-
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
-        pin_memory=False    # MPS does not support pin_memory
-    )
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=False    # MPS does not support pin_memory
-    )
-
-    return train_loader, val_loader
+    @staticmethod
+    def _augment_text(text: str) -> str:
+        """Randomly drop ~10 % of words to improve robustness."""
+        if not text:
+            return text
+        words = text.split()
+        words = [w for w in words if random.random() > 0.10]
+        return " ".join(words) if words else text

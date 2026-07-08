@@ -1,7 +1,13 @@
 venv/
+.venv/
 checkpoints/
+archive/
 Data/
 __pycache__/
 *.pt
 *.pyc
 .DS_Store
+
+# Colab/Kaggle bundle — regenerate locally with colab/make_bundle.py
+# (contains the full dataset; far over GitHub's 100MB file limit)
+colab/*.zip
