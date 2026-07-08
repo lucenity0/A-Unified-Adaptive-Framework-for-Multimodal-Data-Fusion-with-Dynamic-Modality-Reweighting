@@ -53,7 +53,11 @@ CONFIG = {
     "mixup_alpha":      0.2,      # Beta(α, α) for feature MixUp; 0 = disabled
     "rdrop_weight":     0.5,      # symmetric KL between two stochastic passes
     "aux_weight":       0.3,      # auxiliary head focal losses
-    "entropy_weight":   0.05,     # maximise alpha entropy to resist 0/1 gate collapse
+    "entropy_weight":   0.002,    # anti-saturation nudge on α. H(α) peaks at
+                                  # α=0.5, so this term PULLS THE GATE TOWARD
+                                  # 0.5 — at 0.05 it pinned α to a constant
+                                  # (std 0.029→0.002, first T4 run) and the
+                                  # static baseline won; keep it tiny
     "diversity_weight": 0.05,     # encourage per-batch alpha spread
     "supcon_weight":    0.1,      # supervised contrastive loss weight
     "supcon_temp":      0.07,     # SupCon temperature
